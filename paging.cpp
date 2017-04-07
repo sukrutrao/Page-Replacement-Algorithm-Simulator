@@ -42,6 +42,11 @@ PageReplacement::PageReplacement(string input_file_name, string input_roll_numbe
 	number_of_faults = 0;
 	number_of_frames_used = 0;
 	file_object >> number_of_frames;
+	if(number_of_frames <= 0)
+	{
+		cout << "Error : Number of frames must be a positive integer" << endl;
+		exit(1);
+	}
 	frames.resize(number_of_frames,-1);
 }
 

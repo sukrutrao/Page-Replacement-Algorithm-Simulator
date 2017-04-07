@@ -27,3 +27,9 @@
 *.exe
 *.out
 *.app
+
+# Temporary files
+*~
+
+# Text files
+*.txt

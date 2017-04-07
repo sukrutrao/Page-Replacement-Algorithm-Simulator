@@ -6,53 +6,61 @@
 
 using namespace std;
 
+// class for functions simulating Page Replacement Algorithms and associated data
 class PageReplacement
 {
 	private:
-		int number_of_faults;
-		int number_of_frames;
-		int number_of_frames_used;
-		vector<int> frames;
-		vector<string> fault_list;
-		const string file_name;
-		const string roll_number;
-		fstream file_object;
-		fstream output_file;
-		string replacement_algorithm;
-		const string fault;
-		const string no_fault;
-		void FIFO_and_LRU(string replacement_algorithm);
-		void OPTIMAL();
-		void display();
+		int number_of_faults; // total number of page faults
+		int number_of_frames; // number of physical frames
+		int number_of_frames_used; // number of physical frames used
+		vector<int> frames; // to store the pages in each frame
+		vector<string> fault_list; // to store whether each access was a fault or not
+		const string file_name; // input file name
+		const string roll_number; // for naming the output file
+		fstream file_object; // for the input file
+		fstream output_file; // for the output file
+		string replacement_algorithm; // the replacement algorithm being used
+		const string fault; // text to display when there is a fault
+		const string no_fault; // text to display when there is no fault
+		void FIFO_and_LRU(string replacement_algorithm); // to simulate FIFO and LRU algorithms
+		void OPTIMAL(); // to simulate OPTIMAL algorithm
+		void display(); // to display which page is in each frame after each access
 	public:
-		PageReplacement(string input_file_name, string input_roll_number);
-		void evaluate(string replacement_algorithm);		
+		PageReplacement(string input_file_name, string input_roll_number); //to initialize values
+		void evaluate(string replacement_algorithm); // to simulate the algorithm
 };
 
+/*
+ * constructor function
+ * assigns values to const variables, opens files, and initializes vectors and ints
+ */
 PageReplacement::PageReplacement(string input_file_name, string input_roll_number) :
 	file_name(input_file_name), roll_number(input_roll_number),
 	fault("FAULT"), no_fault("NO FAULT")
 {
-	file_object.open(file_name.c_str(),ios::in);
-	if(!file_object)
+	file_object.open(file_name.c_str(),ios::in); // open input file
+	if(!file_object) // if open failed
 	{
 		cout << "Error : Could not open " << file_name << endl;
 		exit(1);
 	}
 	number_of_faults = 0;
 	number_of_frames_used = 0;
-	file_object >> number_of_frames;
-	if(number_of_frames <= 0)
+	file_object >> number_of_frames; // accept number of frames from file
+	if(number_of_frames <= 0) // if it is not positive
 	{
 		cout << "Error : Number of frames must be a positive integer" << endl;
 		exit(1);
 	}
-	frames.resize(number_of_frames,-1);
+	frames.resize(number_of_frames,-1); // initialize each frame with -1
 }
 
+/*
+ * to simulate based on the algorithm specified in replacement_algorithm
+ */
 void PageReplacement::evaluate(string replacement_algorithm)
 {
-	if(replacement_algorithm == "FIFO" || replacement_algorithm == "LRU")
+	if(replacement_algorithm == "FIFO" || replacement_algorithm == "LRU") // call based on algorithm specified
 	{
 		FIFO_and_LRU(replacement_algorithm);
 	}
@@ -60,117 +68,124 @@ void PageReplacement::evaluate(string replacement_algorithm)
 	{
 		OPTIMAL();
 	}
-	else
+	else // if invalid input given
 	{
 		cout << "Error : Unknown replacement algorithm" << endl;
 		exit(1);
 	}
-	output_file.open((roll_number + "_" + replacement_algorithm + ".out").c_str(),ios::out);
-	if(!output_file)
+	output_file.open((roll_number + "_" + replacement_algorithm + ".out").c_str(),ios::out); // open output file
+	if(!output_file) // if opening file failed
 	{
 		cout << "Error : Could not open output file" << endl;
 		exit(1);
 	}
-	output_file << number_of_faults << endl;
+	output_file << number_of_faults << endl; // write to file
 	for(int i = 0; i < fault_list.size(); i++)
 	{
 		output_file << fault_list[i] << endl;
 	}
-	output_file.close();
-	file_object.close();
+	output_file.close(); // close output file
+	file_object.close(); // close input file
 }
 
+/*
+ * simulates FIFO or LRU based on the value of replacement_algorithm
+ */
 void PageReplacement::FIFO_and_LRU(string replacement_algorithm)
 {
-	int current_page;
-	vector<int>::iterator it;
-	vector<int> ordering;
-	ordering.resize(number_of_frames,0);
-	while(file_object >> current_page)
+	int current_page; // the current page being accessed
+	vector<int>::iterator it; // to iterate over the frames
+	vector<int> ordering; // to keep track of the order of accesses
+	ordering.resize(number_of_frames,0); // initialize order to 0
+	while(file_object >> current_page) // read next page access
 	{
-		it = find(frames.begin(),frames.end(),current_page);
-		if(it != frames.end())
+		it = find(frames.begin(),frames.end(),current_page); // check if already in a frame
+		if(it != frames.end()) // if already there
 		{
-			fault_list.push_back(no_fault);
+			fault_list.push_back(no_fault); // there is no fault
 			if(replacement_algorithm == "LRU")
 			{
 				int index = distance(frames.begin(),it);
-				ordering[index] = 0;
+				ordering[index] = 0; // if the algorithm is LRU, access resets the order so that it is last in the list
 			}
 		}
-		else
+		else // if not there
 		{
-			if(number_of_frames_used < number_of_frames)
+			if(number_of_frames_used < number_of_frames) // if an empty frame is available
 			{
-				frames[number_of_frames_used] = current_page;
-				number_of_frames_used++;
+				frames[number_of_frames_used] = current_page; // add frame
+				number_of_frames_used++; // indicate that one more frame has been used
 			}
-			else
+			else // if no empty frame is available
 			{
-				int evict_index = distance(ordering.begin(),max_element(ordering.begin(), ordering.end()));
-				frames[evict_index] = current_page;
-				ordering[evict_index] = 0;
+				int evict_index = distance(ordering.begin(),max_element(ordering.begin(), ordering.end())); //the one to be evicted is the one whose ordering value is the highest
+				frames[evict_index] = current_page; // replace with the current page
+				ordering[evict_index] = 0; // reset ordering
 			}
-			fault_list.push_back(fault);
-			number_of_faults++;
+			fault_list.push_back(fault); // indicate fault
+			number_of_faults++; // increment number of faults
 		}
 		for(int i = 0; i < number_of_frames_used; i++)
 		{
-			ordering[i]++;
+			ordering[i]++; // add one to ordering value of each valid frame
 		}
 	}
 }
 
+/*
+ * simulates the OPTIMAL algorithm
+ */
 void PageReplacement::OPTIMAL()
 {
-	int current_page;
-	vector<int>::iterator it;
-	vector<int> marker;
-	marker.resize(number_of_frames,-1);
-	vector<int> page_accesses;
-	int number_marked = 0;
-	while(file_object >> current_page)
+	int current_page;  // the current page being accessed
+	vector<int>::iterator it; // to iterate over the frames
+	vector<int> marker; // to mark the index of the next page access of the page at the given frame
+	marker.resize(number_of_frames,-1); // initialize marker with -1s
+	vector<int> page_accesses; // to store the list of page accesses
+	while(file_object >> current_page) // read the list of page accesses
 	{
-		page_accesses.push_back(current_page);
+		page_accesses.push_back(current_page); // store
 	}
 	for(int i = 0; i < page_accesses.size(); i++)
 	{
-		current_page = page_accesses[i];
-		it = find(frames.begin(),frames.end(),current_page);
-		if(it != frames.end())
+		current_page = page_accesses[i]; // the current page being accessed
+		it = find(frames.begin(),frames.end(),current_page); // check if it is already in a frame
+		if(it != frames.end()) // if already there
 		{
-			fault_list.push_back(no_fault);
+			fault_list.push_back(no_fault); // indicate that this access has no fault
 		}
-		else
+		else // if not there
 		{
-			if(number_of_frames_used < number_of_frames)
+			if(number_of_frames_used < number_of_frames) // if there is an empty frame
 			{
-				frames[number_of_frames_used] = current_page;
-				number_of_frames_used++;
+				frames[number_of_frames_used] = current_page; // store in the next available frame
+				number_of_frames_used++; // update the number of frames used
 			}
-			else
+			else // if there is no empty frame
 			{
-				vector<int>::iterator find_it;
+				vector<int>::iterator find_it; // to iterate over page accesses
 				for(int j = 0; j < frames.size(); j++)
 				{
-					find_it = find(page_accesses.begin() + i + 1, page_accesses.end(),frames[j]); //check for seg fault
-					marker[j] = distance(page_accesses.begin(),find_it);
+					find_it = find(page_accesses.begin() + i + 1, page_accesses.end(),frames[j]); // find earliest next access of page in current frame
+					marker[j] = distance(page_accesses.begin(),find_it); // store index of access in marker
 				}
-				int evict_index = distance(marker.begin(),max_element(marker.begin(),marker.end()));
-				frames[evict_index] = current_page;
+				int evict_index = distance(marker.begin(),max_element(marker.begin(),marker.end())); // the highest value in marker is the latest accessed page, the one to be evicted
+				frames[evict_index] = current_page; // replace with the current page
 			}
-			fault_list.push_back(fault);
-			number_of_faults++;
+			fault_list.push_back(fault); // indicate that there was a fault
+			number_of_faults++; // update number of faults
 		}
 	}
 }
 
-
+/*
+ * displays the page stored in each frame
+ */
 void PageReplacement::display()
 {
 	for(int i = 0; i < number_of_frames_used; i++)
 	{
-		cout << frames[i] << " ";
+		cout << frames[i] << " "; // display the page in the ith frame
 	}
 	cout << endl;
 }
@@ -178,16 +193,16 @@ void PageReplacement::display()
 int main(int argc, char *argv[])
 {
 	string replacement_algorithm;
-	const string file_name = "PageAccessSequence.txt";
-	const string roll_number = "CS15BTECH11036";
+	const string file_name = "PageAccessSequence.txt"; // input file name
+	const string roll_number = "CS15BTECH11036"; // for output file name
 	fstream file_object;
-	if(argc != 2)
+	if(argc != 2) // if number of arguments supplied is incorrect
 	{
 		cout << "Usage : ./<binaryname> <replacement-algorithm>" << endl;
 		return 1;
 	}
 	replacement_algorithm = argv[1];
-	PageReplacement pageReplacement(file_name, roll_number);
-	pageReplacement.evaluate(replacement_algorithm);
+	PageReplacement pageReplacement(file_name, roll_number); // create and initialize object
+	pageReplacement.evaluate(replacement_algorithm); // simulate algorithm
 	return 0;
 }

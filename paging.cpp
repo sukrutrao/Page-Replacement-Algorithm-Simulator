@@ -21,8 +21,7 @@ class PageReplacement
 		string replacement_algorithm;
 		const string fault;
 		const string no_fault;
-		void LRU();
-		void FIFO();
+		void FIFO_and_LRU(string replacement_algorithm);
 		void OPTIMAL();
 		void display();
 	public:
@@ -48,13 +47,9 @@ PageReplacement::PageReplacement(string input_file_name, string input_roll_numbe
 
 void PageReplacement::evaluate(string replacement_algorithm)
 {
-	if(replacement_algorithm == "FIFO")
+	if(replacement_algorithm == "FIFO" || replacement_algorithm == "LRU")
 	{
-		FIFO();
-	}
-	else if(replacement_algorithm == "LRU")
-	{
-		LRU();
+		FIFO_and_LRU(replacement_algorithm);
 	}
 	else if(replacement_algorithm == "OPTIMAL")
 	{
@@ -80,7 +75,7 @@ void PageReplacement::evaluate(string replacement_algorithm)
 	file_object.close();
 }
 
-void PageReplacement::FIFO()
+void PageReplacement::FIFO_and_LRU(string replacement_algorithm)
 {
 	int current_page;
 	vector<int>::iterator it;
@@ -92,44 +87,11 @@ void PageReplacement::FIFO()
 		if(it != frames.end())
 		{
 			fault_list.push_back(no_fault);
-		}
-		else
-		{
-			if(number_of_frames_used < number_of_frames)
+			if(replacement_algorithm == "LRU")
 			{
-				frames[number_of_frames_used] = current_page;
-				number_of_frames_used++;
+				int index = distance(frames.begin(),it);
+				ordering[index] = 0;
 			}
-			else
-			{
-				int evict_index = distance(ordering.begin(),max_element(ordering.begin(), ordering.end()));
-				frames[evict_index] = current_page;
-				ordering[evict_index] = 0;
-			}
-			fault_list.push_back(fault);
-			number_of_faults++;
-		}
-		for(int i = 0; i < number_of_frames_used; i++)
-		{
-			ordering[i]++;
-		}
-	}
-}
-
-void PageReplacement::LRU()
-{
-	int current_page;
-	vector<int>::iterator it;
-	vector<int> ordering;
-	ordering.resize(number_of_frames,0);
-	while(file_object >> current_page)
-	{
-		it = find(frames.begin(),frames.end(),current_page);
-		if(it != frames.end())
-		{
-			int index = distance(frames.begin(),it);
-			ordering[index] = 0;
-			fault_list.push_back(no_fault);
 		}
 		else
 		{

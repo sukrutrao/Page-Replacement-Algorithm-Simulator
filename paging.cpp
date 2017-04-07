@@ -19,17 +19,20 @@ class PageReplacement
 		fstream file_object;
 		fstream output_file;
 		string replacement_algorithm;
-	public:
-		PageReplacement(string input_file_name, string input_roll_number);
-		void evaluate(string replacement_algorithm);
+		const string fault;
+		const string no_fault;
 		void LRU();
 		void FIFO();
 		void OPTIMAL();
 		void display();
+	public:
+		PageReplacement(string input_file_name, string input_roll_number);
+		void evaluate(string replacement_algorithm);		
 };
 
 PageReplacement::PageReplacement(string input_file_name, string input_roll_number) :
-	file_name(input_file_name), roll_number(input_roll_number)
+	file_name(input_file_name), roll_number(input_roll_number),
+	fault("FAULT"), no_fault("NO FAULT")
 {
 	file_object.open(file_name.c_str(),ios::in);
 	if(!file_object)
@@ -86,7 +89,7 @@ void PageReplacement::FIFO()
 		it = find(frames.begin(),frames.end(),current_page);
 		if(it != frames.end())
 		{
-			fault_list.push_back("NO FAULT");
+			fault_list.push_back(no_fault);
 		}
 		else
 		{
@@ -103,7 +106,7 @@ void PageReplacement::FIFO()
 				}
 				frames[number_of_frames - 1] = current_page;
 			}
-			fault_list.push_back("FAULT");
+			fault_list.push_back(fault);
 			number_of_faults++;
 		}
 	}
@@ -124,7 +127,7 @@ void PageReplacement::LRU()
 				frames[i] = frames[i+1];
 			}
 			frames[number_of_frames_used - 1] = current_page;
-			fault_list.push_back("NO FAULT");
+			fault_list.push_back(no_fault);
 		}
 		else
 		{
@@ -141,7 +144,7 @@ void PageReplacement::LRU()
 				}
 				frames[number_of_frames - 1] = current_page;
 			}
-			fault_list.push_back("FAULT");
+			fault_list.push_back(fault);
 			number_of_faults++;
 		}
 	}
@@ -165,7 +168,7 @@ void PageReplacement::OPTIMAL()
 		it = find(frames.begin(),frames.end(),current_page);
 		if(it != frames.end())
 		{
-			fault_list.push_back("NO FAULT");
+			fault_list.push_back(no_fault);
 		}
 		else
 		{
@@ -182,7 +185,6 @@ void PageReplacement::OPTIMAL()
 					find_it = find(page_accesses.begin() + i + 1, page_accesses.end(),frames[j]); //check for seg fault
 					marker[j] = distance(page_accesses.begin(),find_it);
 				}
-				cout << endl;
 				int evict_index = distance(marker.begin(),max_element(marker.begin(),marker.end()));
 				for(int j = evict_index; j < number_of_frames - 1; j++)
 				{
@@ -190,7 +192,7 @@ void PageReplacement::OPTIMAL()
 				}
 				frames[number_of_frames - 1] = current_page;
 			}
-			fault_list.push_back("FAULT");
+			fault_list.push_back(fault);
 			number_of_faults++;
 		}
 	}

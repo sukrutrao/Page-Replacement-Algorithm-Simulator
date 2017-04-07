@@ -1,3 +1,11 @@
+/*
+ * Program to simulate FIFO, LRU, and OPTIMAL page replacement algorithms given list of page accesses
+ * and number of physical frames
+ * 
+ * Sukrut Rao
+ * CS15BTECH11036
+ */
+
 #include <iostream>
 #include <fstream>
 #include <algorithm>

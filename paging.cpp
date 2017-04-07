@@ -48,12 +48,6 @@ PageReplacement::PageReplacement(string input_file_name, string input_roll_numbe
 
 void PageReplacement::evaluate(string replacement_algorithm)
 {
-	output_file.open((roll_number + "_" + replacement_algorithm + ".out").c_str(),ios::out);
-	if(!output_file)
-	{
-		cout << "Error : Could not open output file" << endl;
-		exit(1);
-	}
 	if(replacement_algorithm == "FIFO")
 	{
 		FIFO();
@@ -69,6 +63,12 @@ void PageReplacement::evaluate(string replacement_algorithm)
 	else
 	{
 		cout << "Error : Unknown replacement algorithm" << endl;
+		exit(1);
+	}
+	output_file.open((roll_number + "_" + replacement_algorithm + ".out").c_str(),ios::out);
+	if(!output_file)
+	{
+		cout << "Error : Could not open output file" << endl;
 		exit(1);
 	}
 	output_file << number_of_faults << endl;
@@ -216,7 +216,7 @@ int main(int argc, char *argv[])
 	fstream file_object;
 	if(argc != 2)
 	{
-		cout << "Usage : ./<binaryname> <replacement-algorithm" << endl;
+		cout << "Usage : ./<binaryname> <replacement-algorithm>" << endl;
 		return 1;
 	}
 	replacement_algorithm = argv[1];

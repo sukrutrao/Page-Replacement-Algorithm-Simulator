@@ -84,6 +84,8 @@ void PageReplacement::FIFO()
 {
 	int current_page;
 	vector<int>::iterator it;
+	vector<int> ordering;
+	ordering.resize(number_of_frames,0);
 	while(file_object >> current_page)
 	{
 		it = find(frames.begin(),frames.end(),current_page);
@@ -100,14 +102,16 @@ void PageReplacement::FIFO()
 			}
 			else
 			{
-				for(int i = 0; i < number_of_frames - 1; i++)
-				{
-					frames[i] = frames[i+1];
-				}
-				frames[number_of_frames - 1] = current_page;
+				int evict_index = distance(ordering.begin(),max_element(ordering.begin(), ordering.end()));
+				frames[evict_index] = current_page;
+				ordering[evict_index] = 0;
 			}
 			fault_list.push_back(fault);
 			number_of_faults++;
+		}
+		for(int i = 0; i < number_of_frames_used; i++)
+		{
+			ordering[i]++;
 		}
 	}
 }
@@ -116,17 +120,15 @@ void PageReplacement::LRU()
 {
 	int current_page;
 	vector<int>::iterator it;
+	vector<int> ordering;
+	ordering.resize(number_of_frames,0);
 	while(file_object >> current_page)
 	{
 		it = find(frames.begin(),frames.end(),current_page);
 		if(it != frames.end())
 		{
 			int index = distance(frames.begin(),it);
-			for(int i = index; i < number_of_frames_used - 1; i++)
-			{
-				frames[i] = frames[i+1];
-			}
-			frames[number_of_frames_used - 1] = current_page;
+			ordering[index] = 0;
 			fault_list.push_back(no_fault);
 		}
 		else
@@ -138,14 +140,16 @@ void PageReplacement::LRU()
 			}
 			else
 			{
-				for(int i = 0; i < number_of_frames - 1; i++)
-				{
-					frames[i] = frames[i+1];
-				}
-				frames[number_of_frames - 1] = current_page;
+				int evict_index = distance(ordering.begin(),max_element(ordering.begin(), ordering.end()));
+				frames[evict_index] = current_page;
+				ordering[evict_index] = 0;
 			}
 			fault_list.push_back(fault);
 			number_of_faults++;
+		}
+		for(int i = 0; i < number_of_frames_used; i++)
+		{
+			ordering[i]++;
 		}
 	}
 }
@@ -186,11 +190,7 @@ void PageReplacement::OPTIMAL()
 					marker[j] = distance(page_accesses.begin(),find_it);
 				}
 				int evict_index = distance(marker.begin(),max_element(marker.begin(),marker.end()));
-				for(int j = evict_index; j < number_of_frames - 1; j++)
-				{
-					frames[j] = frames[j+1];
-				}
-				frames[number_of_frames - 1] = current_page;
+				frames[evict_index] = current_page;
 			}
 			fault_list.push_back(fault);
 			number_of_faults++;

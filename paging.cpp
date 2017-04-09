@@ -181,26 +181,11 @@ void PageReplacement::OPTIMAL()
 			}
 			else // if there is no empty frame
 			{
-				/*vector<int>::iterator find_it; // to iterate over page accesses
+				vector<int>::iterator find_it; // to iterate over page accesses
 				for(int j = 0; j < frames.size(); j++)
 				{
 					find_it = find(page_accesses.begin() + i + 1, page_accesses.end(),frames[j]); // find earliest next access of page in current frame
 					marker[j] = distance(page_accesses.begin(),find_it); // store index of access in marker
-				}*/
-				int find_index;
-				int marked_count = 0;
-				for(int j = 0; j < marker.size(); j++)
-				{
-					marker[j] = page_accesses_size;
-				}
-				for(int j = i + 1; j < page_accesses.size() && marked_count < number_of_frames; j++)
-				{
-					find_index = distance(frames.begin(),find(frames.begin(),frames.end(),page_accesses[j]));
-					if(find_index < number_of_frames && marker[find_index] == page_accesses_size)
-					{
-						marker[find_index] = j;
-						marked_count++;
-					}
 				}
 				int evict_index = distance(marker.begin(),max_element(marker.begin(),marker.end())); // the highest value in marker is the latest accessed page, the one to be evicted
 				if(evict_index < number_of_frames)  // to check if index is in range
@@ -211,7 +196,6 @@ void PageReplacement::OPTIMAL()
 			fault_list.push_back(fault); // indicate that there was a fault
 			number_of_faults++; // update number of faults
 		}
-		cout << "Done with access " << i + 1 << endl;
 	}
 }
 

@@ -4,6 +4,12 @@
  * 
  * Sukrut Rao
  * CS15BTECH11036
+ * 
+ * To compile the program, use
+ * g++ <filename> -o <executablename> --std=c++11
+ * 
+ * To execute the program, use
+ * ./<executablename> <replacementalgorithm>
  */
 
 #include <iostream>
@@ -44,7 +50,7 @@ class PageReplacement
  */
 PageReplacement::PageReplacement(string input_file_name, string input_roll_number) :
 	file_name(input_file_name), roll_number(input_roll_number),
-	fault("FAULT"), no_fault("NO FAULT")
+	fault("FAULT"), no_fault("NOFAULT")
 {
 	file_object.open(file_name.c_str(),ios::in); // open input file
 	if(!file_object) // if open failed
@@ -55,9 +61,9 @@ PageReplacement::PageReplacement(string input_file_name, string input_roll_numbe
 	number_of_faults = 0;
 	number_of_frames_used = 0;
 	file_object >> number_of_frames; // accept number of frames from file
-	if(number_of_frames <= 0) // if it is not positive
+	if(number_of_frames < 0) // if it is negative
 	{
-		cout << "Error : Number of frames must be a positive integer" << endl;
+		cout << "Error : Number of frames must be a non negative integer" << endl;
 		exit(1);
 	}
 	frames.resize(number_of_frames,-1); // initialize each frame with -1
@@ -127,8 +133,11 @@ void PageReplacement::FIFO_and_LRU(string replacement_algorithm)
 			else // if no empty frame is available
 			{
 				int evict_index = distance(ordering.begin(),max_element(ordering.begin(), ordering.end())); //the one to be evicted is the one whose ordering value is the highest
-				frames[evict_index] = current_page; // replace with the current page
-				ordering[evict_index] = 0; // reset ordering
+				if(evict_index < number_of_frames) // to check if index is in range
+				{
+					frames[evict_index] = current_page; // replace with the current page
+					ordering[evict_index] = 0; // reset ordering
+				}					
 			}
 			fault_list.push_back(fault); // indicate fault
 			number_of_faults++; // increment number of faults
@@ -178,7 +187,10 @@ void PageReplacement::OPTIMAL()
 					marker[j] = distance(page_accesses.begin(),find_it); // store index of access in marker
 				}
 				int evict_index = distance(marker.begin(),max_element(marker.begin(),marker.end())); // the highest value in marker is the latest accessed page, the one to be evicted
-				frames[evict_index] = current_page; // replace with the current page
+				if(evict_index < number_of_frames)  // to check if index is in range
+				{
+					frames[evict_index] = current_page; // replace with the current page
+				}				
 			}
 			fault_list.push_back(fault); // indicate that there was a fault
 			number_of_faults++; // update number of faults

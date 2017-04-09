@@ -27,6 +27,8 @@
 *.exe
 *.out
 *.app
+paging
+simulator
 
 # Temporary files
 *~
@@ -34,5 +36,7 @@
 # Text files
 *.txt
 
+# Input Generator
+random_input_file_generator*
 # Folders
 submit

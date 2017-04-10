@@ -159,6 +159,8 @@ void PageReplacement::OPTIMAL()
 	vector<int> marker; // to mark the index of the next page access of the page at the given frame
 	marker.resize(number_of_frames,-1); // initialize marker with -1s
 	vector<int> page_accesses; // to store the list of page accesses
+	vector<bool> is_set; // to store whether marker needs to be updated or not
+	is_set.resize(number_of_frames,false);
 	while(file_object >> current_page) // read the list of page accesses
 	{
 		page_accesses.push_back(current_page); // store
@@ -184,13 +186,18 @@ void PageReplacement::OPTIMAL()
 				vector<int>::iterator find_it; // to iterate over page accesses
 				for(int j = 0; j < frames.size(); j++)
 				{
-					find_it = find(page_accesses.begin() + i + 1, page_accesses.end(),frames[j]); // find earliest next access of page in current frame
-					marker[j] = distance(page_accesses.begin(),find_it); // store index of access in marker
+					if(is_set[j] == false || marker[j] <= i) // if marker for current frame needs to be updated
+					{
+						find_it = find(page_accesses.begin() + i + 1, page_accesses.end(),frames[j]); // find earliest next access of page in current frame
+						marker[j] = distance(page_accesses.begin(),find_it); // store index of access in marker
+						is_set[j] = true; // marker does not need to be updated for now
+					}					
 				}
 				int evict_index = distance(marker.begin(),max_element(marker.begin(),marker.end())); // the highest value in marker is the latest accessed page, the one to be evicted
 				if(evict_index < number_of_frames)  // to check if index is in range
 				{
 					frames[evict_index] = current_page; // replace with the current page
+					is_set[evict_index] = false; // marker needs to be updated next iteration
 				}	
 			}
 			fault_list.push_back(fault); // indicate that there was a fault

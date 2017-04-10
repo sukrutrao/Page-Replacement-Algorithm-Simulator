@@ -37,6 +37,10 @@ simulator
 *.txt
 
 # Input Generator
-random_input_file_generator*
+*generator*
+
 # Folders
 submit
+
+# Assembly files
+*.s

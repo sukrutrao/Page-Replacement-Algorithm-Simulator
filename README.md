@@ -10,7 +10,7 @@ Program to accept number of physical frames, list of page accesses, and the page
 ```
 $ git clone https://github.com/GoodDeeds/Page-Replacement-Algorithm-Simulator.git
 $ cd Page-Replacement-Algorithm-Simulator
-$ g++ --std=c++11 simulator.cpp -o simulator
+$ g++ simulator.cpp -o simulator
 ```
 
 ## Input file specifications

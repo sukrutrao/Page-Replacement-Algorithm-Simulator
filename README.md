@@ -1,6 +1,6 @@
 # Page Replacement Algorithm Simulator
 
-[![Build Status](https://travis-ci.com/GoodDeeds/Page-Replacement-Algorithm-Simulator.svg?token=mYsgPy4zsL5qQDoHBaME&branch=master)](https://travis-ci.com/GoodDeeds/Page-Replacement-Algorithm-Simulation)
+[![Build Status](https://travis-ci.com/sukrutrao/Page-Replacement-Algorithm-Simulator.svg?token=mYsgPy4zsL5qQDoHBaME&branch=master)](https://travis-ci.com/sukrutrao/Page-Replacement-Algorithm-Simulation)
 	
 Program to accept number of physical frames, list of page accesses, and the page replacement algorithm and output the number of faults and whether each access was a fault or not. Supports FIFO, LRU, and OPTIMAL algorithms.
 
@@ -12,7 +12,7 @@ A C++ compiler, such as g++, is required to build the program.
 ### Building the program
 Use
 ```bash
-$ git clone https://github.com/GoodDeeds/Page-Replacement-Algorithm-Simulator.git
+$ git clone https://github.com/sukrutrao/Page-Replacement-Algorithm-Simulator.git
 $ cd Page-Replacement-Algorithm-Simulator
 $ g++ simulator.cpp -o simulator
 ```
